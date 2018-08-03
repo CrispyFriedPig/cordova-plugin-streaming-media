@@ -172,12 +172,43 @@ NSString * const DEFAULT_IMAGE_SCALE = @"center";
 	[imageView setImage:[self getImage:imagePath]];
 }
 
+
+- (void)handleLongPress:(UILongPressGestureRecognizer *)recognizer {
+
+    NSLog(@"123131231");
+    [moviePlayer.player pause];
+    UIAlertController *actionSheet = [UIAlertController alertControllerWithTitle:@"保存视频" message:nil preferredStyle:UIAlertControllerStyleActionSheet];
+    UIAlertAction *action1 = [UIAlertAction actionWithTitle:@"保存" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        NSLog(@"点击了按钮1，进入按钮1的事件");
+        [moviePlayer.player play];
+        
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:@"download"];
+        [pluginResult setKeepCallbackAsBool:YES];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackId];
+        
+        
+    }];
+    UIAlertAction *action2 = [UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
+        NSLog(@"点击了取消");
+        [moviePlayer.player play];
+    }];
+
+    [actionSheet addAction:action1];
+    [actionSheet addAction:action2];
+
+    [moviePlayer presentViewController:actionSheet animated:YES completion:nil];
+    
+}
 -(void)startPlayer:(NSString*)uri {
     
 	NSURL *url             =  [NSURL URLWithString:uri];
     AVPlayer *movie        =  [AVPlayer playerWithURL:url];
 	moviePlayer            =  [[AVPlayerViewController alloc] init];
 
+    UILongPressGestureRecognizer *recognizer = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(handleLongPress:)];
+    recognizer.minimumPressDuration = 1; //设置最小长按时间；默认为0.5秒
+    [moviePlayer.view addGestureRecognizer:recognizer];
+    
     [moviePlayer setPlayer:movie];
     [moviePlayer setShowsPlaybackControls:YES];
     if(@available(iOS 11.0, *)) { [moviePlayer setEntersFullScreenWhenPlaybackBegins:YES]; }
@@ -270,7 +301,7 @@ NSString * const DEFAULT_IMAGE_SCALE = @"center";
 	if (moviePlayer) {
         [moviePlayer.player pause];
         [moviePlayer dismissViewControllerAnimated:YES completion:nil];
-		moviePlayer = nil;
+//        moviePlayer = nil;
 	}
 }
 @end
