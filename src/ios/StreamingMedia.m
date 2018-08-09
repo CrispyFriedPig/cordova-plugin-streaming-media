@@ -66,12 +66,6 @@ NSString * const DEFAULT_IMAGE_SCALE = @"center";
             backgroundColor = [UIColor blackColor];
         }
     }
-    if (![options isKindOfClass:[NSNull class]] && [[options objectForKey:@"orientation"] isEqualToString:@"huiben"]) {
-        NSLog(@"Found option for bgColor");
-        isHuiBen = YES;
-    } else {
-        isHuiBen = NO;
-    }
     // No specific options for video yet
 }
 
@@ -79,6 +73,14 @@ NSString * const DEFAULT_IMAGE_SCALE = @"center";
     callbackId = command.callbackId;
     NSString *mediaUrl  = [command.arguments objectAtIndex:0];
     [self parseOptions:[command.arguments objectAtIndex:1] type:type];
+    
+    if (![[command.arguments objectAtIndex:1] isKindOfClass:[NSNull class]] && [[[command.arguments objectAtIndex:1] objectForKey:@"orientation"] isEqualToString:@"huiben"]) {
+        NSLog(@"Found option for bgColor");
+        isHuiBen = YES;
+    } else {
+        isHuiBen = NO;
+    }
+    
     
     [self startPlayer:mediaUrl];
 }
@@ -218,6 +220,9 @@ NSString * const DEFAULT_IMAGE_SCALE = @"center";
         [[moviePlayer class] attemptRotationToDeviceOrientation];
         
     }else{
+        [[UIDevice currentDevice]setValue:[NSNumber numberWithInteger:UIDeviceOrientationPortrait]forKey:@"orientation"];
+        [[moviePlayer class] attemptRotationToDeviceOrientation];
+        
         UILongPressGestureRecognizer *recognizer = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(handleLongPress:)];
         recognizer.minimumPressDuration = 1; //设置最小长按时间；默认为0.5秒
         [moviePlayer.view addGestureRecognizer:recognizer];
@@ -315,8 +320,8 @@ NSString * const DEFAULT_IMAGE_SCALE = @"center";
     
     if (moviePlayer) {
         [moviePlayer.player pause];
-        [moviePlayer dismissViewControllerAnimated:YES completion:nil];
-        //        moviePlayer = nil;
+//        [moviePlayer dismissViewControllerAnimated:YES completion:nil];
+//        moviePlayer = nil;
     }
 }
 @end
