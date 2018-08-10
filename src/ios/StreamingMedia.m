@@ -219,6 +219,8 @@ NSString * const DEFAULT_IMAGE_SCALE = @"center";
         [[UIDevice currentDevice]setValue:[NSNumber numberWithInteger:UIDeviceOrientationLandscapeLeft]forKey:@"orientation"];
         [[moviePlayer class] attemptRotationToDeviceOrientation];
         
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(viewWillAppear:) name:CDVViewWillAppearNotification object:nil];
+        
     }else{
         [[UIDevice currentDevice]setValue:[NSNumber numberWithInteger:UIDeviceOrientationPortrait]forKey:@"orientation"];
         [[moviePlayer class] attemptRotationToDeviceOrientation];
@@ -244,8 +246,8 @@ NSString * const DEFAULT_IMAGE_SCALE = @"center";
                                              selector:@selector(moviePlayBackDidFinish:)
                                                  name:AVPlayerItemDidPlayToEndTimeNotification
                                                object:moviePlayer.player.currentItem];
-    
-    // Listen for errors
+//
+//    // Listen for errors
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(moviePlayBackDidFinish:)
                                                  name:AVPlayerItemFailedToPlayToEndTimeNotification
@@ -264,8 +266,22 @@ NSString * const DEFAULT_IMAGE_SCALE = @"center";
                                              selector:@selector(orientationChanged:)
                                                  name:UIDeviceOrientationDidChangeNotification
                                                object:nil];
+}
+
+- (void)viewWillAppear:(NSNotification*)notification {
     
+    CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:@"finish"];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackId];
     
+    imageView = nil;
+    initFullscreen = false;
+    backgroundColor = nil;
+    moviePlayer = nil;
+    
+    [[NSNotificationCenter defaultCenter]
+     removeObserver:self
+     name:CDVViewWillAppearNotification
+     object:nil];
 }
 
 - (void) moviePlayBackDidFinish:(NSNotification*)notification {
@@ -301,7 +317,7 @@ NSString * const DEFAULT_IMAGE_SCALE = @"center";
     imageView = nil;
     initFullscreen = false;
     backgroundColor = nil;
-    
+
     // Remove playback finished listener
     [[NSNotificationCenter defaultCenter]
      removeObserver:self
@@ -321,7 +337,7 @@ NSString * const DEFAULT_IMAGE_SCALE = @"center";
     if (moviePlayer) {
         [moviePlayer.player pause];
 //        [moviePlayer dismissViewControllerAnimated:YES completion:nil];
-//        moviePlayer = nil;
+        moviePlayer = nil;
     }
 }
 @end
