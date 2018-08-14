@@ -349,7 +349,9 @@ NSString * const DEFAULT_IMAGE_SCALE = @"center";
     
     if (moviePlayer) {
         [moviePlayer.player pause];
-//        [moviePlayer dismissViewControllerAnimated:YES completion:nil];
+        if (isHuiBen != YES) {
+            [moviePlayer dismissViewControllerAnimated:YES completion:nil];
+        }
         moviePlayer = nil;
     }
 }
