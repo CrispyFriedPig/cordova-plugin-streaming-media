@@ -221,6 +221,9 @@ NSString * const DEFAULT_IMAGE_SCALE = @"center";
         
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(viewWillAppear:) name:CDVViewWillAppearNotification object:nil];
         
+        // app启动或者app从后台进入前台都会调用这个方法
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(applicationBecomeActive:) name:UIApplicationDidBecomeActiveNotification object:nil];
+        
     }else{
         [[UIDevice currentDevice]setValue:[NSNumber numberWithInteger:UIDeviceOrientationPortrait]forKey:@"orientation"];
         [[moviePlayer class] attemptRotationToDeviceOrientation];
@@ -266,6 +269,16 @@ NSString * const DEFAULT_IMAGE_SCALE = @"center";
                                              selector:@selector(orientationChanged:)
                                                  name:UIDeviceOrientationDidChangeNotification
                                                object:nil];
+}
+
+- (void)applicationBecomeActive:(NSNotification*)notification
+{
+    dispatch_time_t delayTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.05 * NSEC_PER_SEC));
+    dispatch_after(delayTime, dispatch_get_main_queue(), ^{
+        [[UIDevice currentDevice]setValue:[NSNumber numberWithInteger:UIDeviceOrientationLandscapeLeft]forKey:@"orientation"];
+        [[moviePlayer class] attemptRotationToDeviceOrientation];
+        [moviePlayer.player play];
+    });
 }
 
 - (void)viewWillAppear:(NSNotification*)notification {
